@@ -4,6 +4,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.naive_bayes import MultinomialNB
 
+from nltk.corpus import stopwords
+from nltk.stem.snowball import SnowballStemmer
+#from sklearn.feature_extraction import text
 import sys
 import re
 # FIXME change your data path/folder here
@@ -23,6 +26,8 @@ class Predict:
 
         self.train_ans = []
         self.test_index = []
+
+#        self.stop_words = ['http','www','img','border','0','1','2','3','4','5','6','7','8','9','the','a','is']
 
     def get_labels(self):
         """ get train_labels.csv and return a dictionary """
@@ -96,28 +101,36 @@ class Predict:
     def clean(self,raw):
         """ remove html tags """
         moods = self.get_moods()
-        clean_list = []
+        text_list = []
 
+        stemmer = SnowballStemmer("english")
+        stop_words = stopwords.words('english')
         print "Cleaning ..."
-
+ #       print "",raw[2]
         cnt = 0
         for text in raw:
             cnt += 1
             text = text.lower()
             text = re.sub(r'<.*?>',' ', text)
-            text = re.sub(r'\s\s+', ' ', text)
             text = re.sub(r'-|_', '', text)
-            text = re.sub(r'\n', '', text)
+            text = re.sub(r'[^\w\s]','',text)
+            text = re.sub(r'\n', ' ', text)
+            text = re.sub(r'\s\s+', ' ', text)
+            #text = [word for word in text.split() if word not in stopwords.words("english")]
             for mood in moods:
                 text = re.sub(r'%s' %(mood), (" "+mood+" ")*5, text)
+            text = " ".join([stemmer.stem(word) for word in text.split(" ")])
+            text = " ".join([i for i in text.split() if i not in stop_words])
+            #text.decode('utf-8').strip()
+            #print text
 
-            clean_list.append(text)
+            text_list.append(text)
 
             sys.stdout.write('\rStatus: %s' %(cnt))
             sys.stdout.flush()
-
-        print ''
-        return clean_list
+#        print "",text_list[2]
+        print ""
+        return text_list
 
     def get_tfidf_vectors(self):
         """ initialize vectorizer and return 'training vector' and 'testing vector' """
