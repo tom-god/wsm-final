@@ -11,8 +11,6 @@ import sys
 import re
 # FIXME change your data path/folder here
 
-"""Tom God"""
-
 class Predict:
 
     def __init__(self):
