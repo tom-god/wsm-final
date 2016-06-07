@@ -8,13 +8,13 @@ import sys
 class PreProcess:
     def __init__(self):
         """ """
-        self.src = './data/small_train/'
-        self.src_label = './data/train_labels.csv'
-        self.dst1 = './data/new_test/'
-        self.dst2 = './data/new_train/'
+        self.src = '../data/train/'
+        self.src_label = '../data/train_labels.csv'
+        self.dst1 = '../data/new_test/'
+        self.dst2 = '../data/new_train/'
 
-        self.dst3 = './data/new_test_labels.csv'
-        self.dst4 = './data/new_train_labels.csv'
+        self.dst3 = '../data/new_test_labels.csv'
+        self.dst4 = '../data/new_train_labels.csv'
 
         self.test_num = 10
 

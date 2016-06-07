@@ -1,9 +1,8 @@
 from os import listdir
 from os.path import isfile, join
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.naive_bayes import BernoulliNB
-from sklearn.naive_bayes import MultinomialNB
-
+#from sklearn.naive_bayes import BernoulliNB, MultinomialNB
+from sklearn import svm, linear_model
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 #from sklearn.feature_extraction import text
@@ -17,12 +16,12 @@ class Predict:
         """ initialize the path of all the folder and files to be used """
 
         print '-'*60
-        self.train_folder = './data/new_train/' # folder
-        self.test_folder = './data/new_test/' # folder
-        self.label_file = './data/train_labels.csv' # path
+        self.train_folder = '../data/new_train/' # folder
+        self.test_folder = '../data/new_test/' # folder
+        self.label_file = '../data/new_train_labels.csv' # path
         #pred_file = './submission_NB.csv' # predicitons
-        self.pred_file = './submission.csv'
-        self.mood_file = './data/moods_mapping.txt'
+        self.pred_file = '../submission.csv'
+        self.mood_file = '../data/mods_mapping.txt'
 
         self.train_ans = []
         self.test_index = []
@@ -157,7 +156,10 @@ class Predict:
         print 'Building Multinomial Naive Bayes classifier ...'
         clf =  MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
         #clf = BernoulliNB()
-        return clf
+       
+		print 'build Stochastic gradient descent classifier...'''	
+		
+		return clf
 
     def predict(self):
         """ make predictions and store them into submission.csv """
