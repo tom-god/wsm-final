@@ -16,11 +16,11 @@ class Predict:
         """ initialize the path of all the folder and files to be used """
 
         print '-'*60
-        self.train_folder = '../data/new_train/' # folder
-        self.test_folder = '../data/new_test/' # folder
-        self.label_file = '../data/new_train_labels.csv' # path
+        self.train_folder = '../data/train/' # folder
+        self.test_folder = '../data/test/' # folder
+        self.label_file = '../data/train_labels.csv' # path
         #pred_file = './submission_NB.csv' # predicitons
-        self.pred_file = '../submission.csv'
+        self.pred_file = './submission.csv'
         self.mood_file = '../data/mods_mapping.txt'
 
         self.train_ans = []
@@ -153,13 +153,18 @@ class Predict:
     def get_classifier(self):
         """ build classifier and fit all the data into it"""
 
-        print 'Building Multinomial Naive Bayes classifier ...'
-        clf =  MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
-        #clf = BernoulliNB()
-       
-		print 'build Stochastic gradient descent classifier...'''	
-		
-		return clf
+        #print 'Building Multinomial Naive Bayes classifier ...'
+        #clf =  MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
+        #clf = BernoulliNB(alpha=0.28)
+
+		#print 'build Suport Vector Machine classifier ...'''
+		#clf = svm.SVC(kernel='rbf', probability=True, tol=0.1)
+		#clf = svm.SVC(C=0.3, probability=True, tol=0.8, max_iter=500, decision_function_shape='ovr')
+
+        print 'build Stochastic gradient descent classifier...'''
+        clf = linear_model.SGDClassifier(loss="log", n_iter=7)
+
+        return clf
 
     def predict(self):
         """ make predictions and store them into submission.csv """

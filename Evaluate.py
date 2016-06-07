@@ -2,7 +2,7 @@ import sys
 
 class Evaluate:
     def __init__(self):
-        self.src1 = './data/new_test_labels.csv'
+        self.src1 = '../data/new_test_labels.csv'
         self.src2 = './submission.csv'
         print '-'*60
 
