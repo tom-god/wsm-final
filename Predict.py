@@ -3,6 +3,9 @@ from os.path import isfile, join
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import BernoulliNB
 from sklearn.naive_bayes import MultinomialNB
+
+import sys
+import re
 # FIXME change your data path/folder here
 
 class Predict:
@@ -16,6 +19,7 @@ class Predict:
         self.label_file = './data/train_labels.csv' # path
         #pred_file = './submission_NB.csv' # predicitons
         self.pred_file = './submission.csv'
+        self.mood_file = './data/moods_mapping.txt'
 
         self.train_ans = []
         self.test_index = []
@@ -76,20 +80,61 @@ class Predict:
 
         return test_raw
 
+    def get_moods(self):
+        """ get mood_mappings.txt and return a list of moods """
+        moods = []
+        #print 'Loading', self.mood_file
+
+        with open(self.mood_file, 'rb') as f:
+            f.next() # skip header line
+            for line in f:
+                index, mood = line.rstrip('\n').split(',')
+                moods.append(mood)
+
+        return moods
+
+    def clean(self,raw):
+        """ remove html tags """
+        moods = self.get_moods()
+        clean_list = []
+
+        print "Cleaning ..."
+
+        cnt = 0
+        for text in raw:
+            cnt += 1
+            text = text.lower()
+            text = re.sub(r'<.*?>',' ', text)
+            text = re.sub(r'\s\s+', ' ', text)
+            text = re.sub(r'-|_', '', text)
+            text = re.sub(r'\n', '', text)
+            for mood in moods:
+                text = re.sub(r'%s' %(mood), (" "+mood+" ")*5, text)
+
+            clean_list.append(text)
+
+            sys.stdout.write('\rStatus: %s' %(cnt))
+            sys.stdout.flush()
+
+        print ''
+        return clean_list
+
     def get_tfidf_vectors(self):
         """ initialize vectorizer and return 'training vector' and 'testing vector' """
 
         train_raw = self.get_training_data()
+        train_clean = self.clean(train_raw)
         test_raw = self.get_testing_data()
+        test_clean = self.clean(test_raw)
 
         print 'Initilizing tf vectorizer ...'
         vectorizer = TfidfVectorizer(lowercase = True, smooth_idf=True, stop_words='english')
-        vectorizer.fit(train_raw+test_raw)
+        vectorizer.fit( train_clean + test_clean )
 
         print 'Transforming data to tfidf vector ...'
-        train_vec = vectorizer.transform(train_raw)
+        train_vec = vectorizer.transform(train_clean)
         #print len(vectorizer.get_feature_names())
-        test_vec = vectorizer.transform(test_raw)
+        test_vec = vectorizer.transform(test_clean)
 
         return train_vec, test_vec
 
@@ -106,6 +151,7 @@ class Predict:
         train_vec, test_vec = self.get_tfidf_vectors()
         clf = self.get_classifier()
 
+        print '-'*40
         print 'Making predictions ...'
         clf.fit(train_vec, self.train_ans)
         clf_predictions = clf.predict_proba(test_vec)
@@ -121,4 +167,5 @@ class Predict:
 
 if __name__ == '__main__':
     p = Predict()
+    #p.get_tfidf_vectors()
     p.predict()
