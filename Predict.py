@@ -157,12 +157,12 @@ class Predict:
         #clf =  MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
         #clf = BernoulliNB(alpha=0.28)
 
-		#print 'build Suport Vector Machine classifier ...'''
+        #print 'build Suport Vector Machine classifier ...'''
 		#clf = svm.SVC(kernel='rbf', probability=True, tol=0.1)
-		#clf = svm.SVC(C=0.3, probability=True, tol=0.8, max_iter=500, decision_function_shape='ovr')
+        #clf = svm.SVC(C=0.5, kernel='linear', probability=True, tol=0.1, max_iter=100, decision_function_shape='ovr')
 
         print 'build Stochastic gradient descent classifier...'''
-        clf = linear_model.SGDClassifier(loss="log", n_iter=7)
+        clf = linear_model.SGDClassifier(alpha=0.0002 ,loss="log", n_iter=8)
 
         return clf
 
