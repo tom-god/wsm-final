@@ -21,7 +21,7 @@ class Predict:
         print '-'*60
         self.train_folder = './data/new_train/' # folder
         self.test_folder = './data/new_test/' # folder
-        self.label_file = './data/train_labels.csv' # path
+        self.label_file = './data/new_train_labels.csv' # path
         #pred_file = './submission_NB.csv' # predicitons
         self.pred_file = './submission.csv'
         self.mood_file = './data/moods_mapping.txt'
