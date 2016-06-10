@@ -15,8 +15,8 @@ class PreProcess:
         print '-'*60
         self.train_folder = '../data/train/'
         self.test_folder = '../data/test/'
-        self.train_clean_folder = '../clean/data/train_clean/'
-        self.test_clean_folder = '../clean/data/test_clean/'
+        self.train_clean_folder = '../data/preprocess/train_clean/'
+        self.test_clean_folder = '../data/preprocess/test_clean/'
 
         self.mood_file = '../data/moods_mapping.txt'
         #self.emoticons_file = './data/emoticons.txt'
@@ -104,6 +104,7 @@ class PreProcess:
 
         text_list = []
         for text in raw:
+            text = re.sub(r'^https?:\/\/.*[\r\n]*', ' ', text, flags=re.MULTILINE)
             soup = BeautifulSoup(text, 'html.parser') # create a new bs4 object from the html data loaded
             for script in soup(["script", "style"]): # remove all javascript and stylesheet code
                 script.extract()
@@ -137,7 +138,7 @@ class PreProcess:
             #for emoticon in emoticons:
              #   text = re.sub(r'%s' %(emoticon), (" "+emoticon+" "), text)
             #text = re.sub(r'<.*?>',' ', text)
-            text = re.sub(r'-|_', ' ', text)
+            text = re.sub(r'\s_\s', ' ', text)
             text = re.sub("\d+", ' ', text)
             text = re.sub(r'[^\w\s]',' ',text)
             text = re.sub(r'\n', ' ', text)
@@ -150,6 +151,8 @@ class PreProcess:
             sys.stdout.write('\rStatus: %s' %(cnt))
             sys.stdout.flush()
 
+        print text_list
+        #print ""
         return text_list
 
     def render(self):

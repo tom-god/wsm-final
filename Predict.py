@@ -15,8 +15,8 @@ class Predict:
         """ initialize the path of all the folder and files to be used """
 
         print '-'*60
-        self.train_folder = '../clean/data/train_clean/' # folder
-        self.test_folder = '../clean/data/test_clean/' # folder
+        self.train_folder = '../data/preprocess/train_clean/' # folder
+        self.test_folder = '../data/preprocess/test_clean/' # folder
         self.label_file = '../data/train_labels.csv' # path
         #pred_file = './submission_NB.csv' # predicitons
         self.pred_file = './submission_SGD.csv'
@@ -111,7 +111,7 @@ class Predict:
 
         print 'build Stochastic gradient descent classifier...'''
         #clf = linear_model.SGDClassifier(alpha=0.0002 ,loss="log", n_iter=8)
-        clf = linear_model.SGDClassifier(alpha=0.00001 ,loss="log", n_iter=85)
+        clf = linear_model.SGDClassifier(alpha=0.000007 ,loss="log", n_iter=1200)
 
         return clf
 
