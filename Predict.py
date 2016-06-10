@@ -3,12 +3,11 @@ from os.path import isfile, join
 from sklearn.feature_extraction.text import TfidfVectorizer
 #from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 from sklearn import svm, linear_model
+
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
-#from sklearn.feature_extraction import text
 import sys
 import re
-# FIXME change your data path/folder here
 
 class Predict:
 
@@ -16,22 +15,21 @@ class Predict:
         """ initialize the path of all the folder and files to be used """
 
         print '-'*60
-        self.train_folder = '../data/train/' # folder
-        self.test_folder = '../data/test/' # folder
+        self.train_folder = '../clean/data/train_clean/' # folder
+        self.test_folder = '../clean/data/test_clean/' # folder
         self.label_file = '../data/train_labels.csv' # path
         #pred_file = './submission_NB.csv' # predicitons
-        self.pred_file = './submission.csv'
+        self.pred_file = './submission_SGD.csv'
         self.mood_file = '../data/mods_mapping.txt'
+
 
         self.train_ans = []
         self.test_index = []
 
-#        self.stop_words = ['http','www','img','border','0','1','2','3','4','5','6','7','8','9','the','a','is']
-
     def get_labels(self):
         """ get train_labels.csv and return a dictionary """
 
-        print 'Loading label data ...'
+        print 'Loading label data from', self.label_file, '...'
         labels = {}
         with open(self.label_file, 'rb') as f:
             f.next() # skip header line
@@ -45,10 +43,10 @@ class Predict:
         """ get training data and return a list, in which an item is the content of a document """
         labels = self.get_labels()
 
-        print 'Loading training data ...'
-        #train_index = []
+        print 'Loading training data from ', self.train_folder , '...'
+        train_index = []
         #train_ans = []
-        train_raw = []
+        train_text = []
         cnt = 0
 
         for f in listdir(self.train_folder):
@@ -60,16 +58,15 @@ class Predict:
                 #train_index.append(f[:-4])
                 self.train_ans.append(labels[f[:-4]])
                 with open(file_path, 'rb') as f:
-                    train_raw.append( f.read() )
+                    train_text.append( f.read() )
 
-        #return train_raw, train_index, train_ans
-        return train_raw
+        return train_text
 
     def get_testing_data(self):
         """ get testing data and return a list, in which an item is the content of a document """
-        print 'Loading testing data ...'
-        #test_index = []
-        test_raw = []
+
+        print 'Loading testing data ', self.test_folder , '...'
+        test_text = []
         cnt = 0
 
         for f in listdir(self.test_folder):
@@ -80,73 +77,24 @@ class Predict:
                     print 'finished:', cnt # line counter
                 self.test_index.append(f[:-4])
                 with open(file_path, 'rb') as f:
-                    test_raw.append( f.read() )
+                    test_text.append( f.read() )
 
-        return test_raw
-
-    def get_moods(self):
-        """ get mood_mappings.txt and return a list of moods """
-        moods = []
-        #print 'Loading', self.mood_file
-
-        with open(self.mood_file, 'rb') as f:
-            f.next() # skip header line
-            for line in f:
-                index, mood = line.rstrip('\n').split(',')
-                moods.append(mood)
-
-        return moods
-
-    def clean(self,raw):
-        """ remove html tags """
-        moods = self.get_moods()
-        text_list = []
-
-        stemmer = SnowballStemmer("english")
-        stop_words = stopwords.words('english')
-        print "Cleaning ..."
- #       print "",raw[2]
-        cnt = 0
-        for text in raw:
-            cnt += 1
-            text = text.lower()
-            text = re.sub(r'<.*?>',' ', text)
-            text = re.sub(r'-|_', '', text)
-            text = re.sub(r'[^\w\s]','',text)
-            text = re.sub(r'\n', ' ', text)
-            text = re.sub(r'\s\s+', ' ', text)
-            #text = [word for word in text.split() if word not in stopwords.words("english")]
-            for mood in moods:
-                text = re.sub(r'%s' %(mood), (" "+mood+" ")*5, text)
-            text = " ".join([stemmer.stem(word) for word in text.split(" ")])
-            text = " ".join([i for i in text.split() if i not in stop_words])
-            #text.decode('utf-8').strip()
-            #print text
-
-            text_list.append(text)
-
-            sys.stdout.write('\rStatus: %s' %(cnt))
-            sys.stdout.flush()
-#        print "",text_list[2]
-        print ""
-        return text_list
+        return test_text
 
     def get_tfidf_vectors(self):
         """ initialize vectorizer and return 'training vector' and 'testing vector' """
 
-        train_raw = self.get_training_data()
-        train_clean = self.clean(train_raw)
-        test_raw = self.get_testing_data()
-        test_clean = self.clean(test_raw)
+        train_text = self.get_training_data()
+        test_text = self.get_testing_data()
 
         print 'Initilizing tf vectorizer ...'
         vectorizer = TfidfVectorizer(lowercase = True, smooth_idf=True, stop_words='english')
-        vectorizer.fit( train_clean + test_clean )
+        vectorizer.fit( train_text + test_text )
 
         print 'Transforming data to tfidf vector ...'
-        train_vec = vectorizer.transform(train_clean)
+        train_vec = vectorizer.transform(train_text)
         #print len(vectorizer.get_feature_names())
-        test_vec = vectorizer.transform(test_clean)
+        test_vec = vectorizer.transform(test_text)
 
         return train_vec, test_vec
 
@@ -162,7 +110,8 @@ class Predict:
         #clf = svm.SVC(C=0.5, kernel='linear', probability=True, tol=0.1, max_iter=100, decision_function_shape='ovr')
 
         print 'build Stochastic gradient descent classifier...'''
-        clf = linear_model.SGDClassifier(alpha=0.0002 ,loss="log", n_iter=8)
+        #clf = linear_model.SGDClassifier(alpha=0.0002 ,loss="log", n_iter=8)
+        clf = linear_model.SGDClassifier(alpha=0.00001 ,loss="log", n_iter=85)
 
         return clf
 
