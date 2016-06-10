@@ -9,7 +9,7 @@ class Divide:
     def __init__(self):
         """ initialize the path of all the folders and files to be used """
 
-        self.src = './data/small_train/'
+        self.src = './data/train/'
         self.src_label = './data/train_labels.csv'
 
         self.dst1 = './data/new_test/'
@@ -18,7 +18,7 @@ class Divide:
         self.dst4 = './data/new_train_labels.csv'
 
         """ the number of files to be randomed and put inside the folder 'new_test' """
-        self.random = 10
+        self.random = 18000
 
     def create_dir(self):
         """ create folder if not found """
