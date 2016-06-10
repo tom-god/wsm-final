@@ -3,6 +3,7 @@ from os import listdir
 from os.path import isfile, join
 import sys
 import re
+from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
 
@@ -18,6 +19,7 @@ class PreProcess:
         self.test_clean_folder = './data/new_test_clean/'
 
         self.mood_file = './data/moods_mapping.txt'
+        self.emoticons_file = './data/emoticons.txt'
 
     def create_dir(self):
         """ create folder if not found """
@@ -82,6 +84,42 @@ class PreProcess:
 
         return moods
 
+    def get_emoticons(self):
+        """ get emoticons.txt and return a list of emoticons """
+        emoticons = []
+        print 'Loading', self.emoticons_file
+
+        #uni2ascii = {ord('\xe2\x80\x91'.decode('utf-8')): ord("-")}
+        with open(self.emoticons_file, 'rb') as f:
+            for line in f:
+                emoticons = line.rstrip('\n').split(' ')
+            for e in emoticons:
+                print e.encode('ascii', 'ignore')
+                #e.decode('utf-8').translate(uni2ascii).encode('ascii')
+        print emoticons
+        return emoticons
+
+    def clean_html(self,raw):
+        """ clean html tags & css & javascript"""
+
+        text_list = []
+        for text in raw:
+            soup = BeautifulSoup(text, 'html.parser') # create a new bs4 object from the html data loaded
+            for script in soup(["script", "style"]): # remove all javascript and stylesheet code
+                script.extract()
+            # get text
+            text = soup.get_text()
+            # break into lines and remove leading and trailing space on each
+            lines = (line.strip() for line in text.splitlines())
+            # break multi-headlines into a line each
+            chunks = (phrase.strip() for line in lines for phrase in line.split(" "))
+            # drop blank lines
+            text = '\n'.join(chunk for chunk in chunks if chunk)
+            text_list.append(text)
+
+        #print text_list
+        return text_list
+
     def clean(self,raw, moods):
         """ remove whatever crap it is in the text """
 
@@ -94,24 +132,24 @@ class PreProcess:
         for text in raw:
             cnt += 1
             text = text.lower()
-            text = re.sub(r'<.*?>',' ', text)
-            text = re.sub(r'-|_', '', text)
-            text = re.sub(r'[^\w\s]','',text)
-            text = re.sub(r'\n', ' ', text)
-            text = re.sub(r'\s\s+', ' ', text)
-            #text = [word for word in text.split() if word not in stopwords.words("english")]
             for mood in moods:
-                text = re.sub(r'%s' %(mood), (" "+mood+" ")*5, text)
+                text = re.sub(r'%s' %(mood), (' ' + mood + ' ')*5, text)
+            #for emoticon in emoticons:
+             #   text = re.sub(r'%s' %(emoticon), (" "+emoticon+" "), text)
+            #text = re.sub(r'<.*?>',' ', text)
+            text = re.sub(r'-|_', ' ', text)
+            text = re.sub("\d+", ' ', text)
+            text = re.sub(r'[^\w\s]',' ',text)
+            text = re.sub(r'\n', ' ', text)
             text = " ".join([stemmer.stem(word) for word in text.split(" ")])
             text = " ".join([i for i in text.split() if i not in stop_words])
-            #print text
+            text = re.sub(r'\s+', ' ', text)
 
             text_list.append(text)
 
             sys.stdout.write('\rStatus: %s' %(cnt))
             sys.stdout.flush()
 
-        print ""#,text_list
         return text_list
 
     def render(self):
@@ -119,11 +157,14 @@ class PreProcess:
 
         self.create_dir()
         moods = self.get_moods()
+        #emoticons = self.get_emoticons()
 
         train_index, train_raw = self.get_training_data()
         test_index, test_raw = self.get_testing_data()
-        train_clean = self.clean(train_raw, moods)
-        test_clean = self.clean(test_raw, moods)
+        train_clean =self.clean_html(train_raw)
+        test_clean =self.clean_html(test_raw)
+        train_clean = self.clean(train_clean, moods)
+        test_clean = self.clean(test_clean, moods)
 
         print "Putting files into", self.train_clean_folder
         for i in xrange(len(train_index)):
