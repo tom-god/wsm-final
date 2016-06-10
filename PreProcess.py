@@ -84,6 +84,19 @@ class PreProcess:
 
         return moods
 
+    def get_extra_stopwords(self):
+        """ get extra stopwords in extra_stopword.txt """
+
+        print 'Loading', self.stopwords_file
+        extra_stopwords = []
+
+        with open(self.stopwords_file, 'rb') as f:
+            for line in f:
+                stopword = line.strip('\r\n')
+                extra_stopwords.append(stopword)
+
+        return extra_stopwords
+
     def get_emoticons(self):
         """ get emoticons.txt and return a list of emoticons """
         emoticons = []
@@ -115,7 +128,7 @@ class PreProcess:
             # break multi-headlines into a line each
             chunks = (phrase.strip() for line in lines for phrase in line.split(" "))
             # drop blank lines
-            text = '\n'.join(chunk for chunk in chunks if chunk)
+            text = ' '.join(chunk for chunk in chunks if chunk)
             text_list.append(text)
 
         #print text_list
@@ -126,7 +139,12 @@ class PreProcess:
 
         text_list = []
         stemmer = SnowballStemmer("english")
-        stop_words = stopwords.words('english')
+        #stop_words = stopwords.words('english')
+        #print type(stop_words)
+        stopwords = self.get_extra_stopwords()
+
+        #stop_words = stop_words + extra_stopwords
+        #print stopwords
 
         print "Cleaning ..."
         cnt = 0
@@ -135,15 +153,18 @@ class PreProcess:
             text = text.lower()
             for mood in moods:
                 text = re.sub(r'%s' %(mood), (' ' + mood + ' ')*5, text)
+            text = " ".join([i for i in text.split() if i not in stopwords])
             #for emoticon in emoticons:
              #   text = re.sub(r'%s' %(emoticon), (" "+emoticon+" "), text)
-            #text = re.sub(r'<.*?>',' ', text)
-            text = re.sub(r'\s_\s', ' ', text)
-            text = re.sub("\d+", ' ', text)
+            text = re.sub(r'_', ' ', text)
+            text = re.sub(r'\d+', ' ', text)
             text = re.sub(r'[^\w\s]',' ',text)
+            text = re.sub(r'(\w)\1\1+','\\1',text)
             text = re.sub(r'\n', ' ', text)
+            #text = " ".join([spell(word) for word in text.split(" ")])
+            #print text
             text = " ".join([stemmer.stem(word) for word in text.split(" ")])
-            text = " ".join([i for i in text.split() if i not in stop_words])
+            #print text
             text = re.sub(r'\s+', ' ', text)
 
             text_list.append(text)
@@ -151,7 +172,7 @@ class PreProcess:
             sys.stdout.write('\rStatus: %s' %(cnt))
             sys.stdout.flush()
 
-        print text_list
+        #print text_list
         #print ""
         return text_list
 
