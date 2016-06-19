@@ -6,6 +6,8 @@ import re
 from bs4 import BeautifulSoup
 from nltk.corpus import stopwords
 from nltk.stem.snowball import SnowballStemmer
+#from nltk.stem.snowball import EnglishStemmer
+#from nltk.stem import WordNetLemmatizer
 
 class PreProcess:
 
@@ -15,11 +17,12 @@ class PreProcess:
         print '-'*60
         self.train_folder = '../data/train/'
         self.test_folder = '../data/test/'
-        self.train_clean_folder = '../data/preprocess/train_clean/'
-        self.test_clean_folder = '../data/preprocess/test_clean/'
+        self.train_clean_folder = '../data/preprocess_11/train_clean/'
+        self.test_clean_folder = '../data/preprocess_11/test_clean/'
 
         self.mood_file = '../data/moods_mapping.txt'
         #self.emoticons_file = './data/emoticons.txt'
+        self.stopwords_file = '../data/terrier_stopwords.txt'
 
     def create_dir(self):
         """ create folder if not found """
@@ -114,7 +117,7 @@ class PreProcess:
 
     def clean_html(self,raw):
         """ clean html tags & css & javascript"""
-
+        print 'Clean Html $ Javascript tag'
         text_list = []
         for text in raw:
             text = re.sub(r'^https?:\/\/.*[\r\n]*', ' ', text, flags=re.MULTILINE)
@@ -136,12 +139,14 @@ class PreProcess:
 
     def clean(self,raw, moods):
         """ remove whatever crap it is in the text """
-
+        emoticon_list = []
         text_list = []
         stemmer = SnowballStemmer("english")
+        #wnl = WordNetLemmatizer()
+        #stemmer = EnglishStemmer()
         #stop_words = stopwords.words('english')
         #print type(stop_words)
-        stopwords = self.get_extra_stopwords()
+        #stopwords = self.get_extra_stopwords()
 
         #stop_words = stop_words + extra_stopwords
         #print stopwords
@@ -150,23 +155,27 @@ class PreProcess:
         cnt = 0
         for text in raw:
             cnt += 1
-            text = text.lower()
-            for mood in moods:
-                text = re.sub(r'%s' %(mood), (' ' + mood + ' ')*5, text)
-            text = " ".join([i for i in text.split() if i not in stopwords])
+            #text = text.lower()
+            #text = " ".join([i for i in text.split() if i not in stopwords])
             #for emoticon in emoticons:
              #   text = re.sub(r'%s' %(emoticon), (" "+emoticon+" "), text)
-            text = re.sub(r'_', ' ', text)
-            text = re.sub(r'\d+', ' ', text)
-            text = re.sub(r'[^\w\s]',' ',text)
-            text = re.sub(r'(\w)\1\1+','\\1',text)
-            text = re.sub(r'\n', ' ', text)
+            emoticon_list = re.findall('( :\( | :\) | :p | :P | =P | xD | XD | :D )', text)
+            #text = re.sub(r'_', ' ', text) #1
+            #text = re.sub(r'\d', ' ', text) #2
+            text = re.sub(r'[^\w\s]',' ',text)  #3 match a single character not present in the list below
+            text = re.sub(r'(\w)\1\1+','\\1',text) #4 example: haaaaaaa -> ha
+            #text = re.sub(r'\n', ' ', text) #5
+            #text = re.sub(r'\ \w\ ', '', text)  #6 delete single character
             #text = " ".join([spell(word) for word in text.split(" ")])
             #print text
             text = " ".join([stemmer.stem(word) for word in text.split(" ")])
-            #print text
-            text = re.sub(r'\s+', ' ', text)
-
+            #if len(emoticon_list) > 0:
+            text = text + ' '.join(emoticon_list)
+            #else:
+            for mood in moods:
+                text = re.sub(r'%s' %(mood), (' ' + mood + ' ')*10, text)
+            
+            text = re.sub(r'\s+', ' ', text) #7
             text_list.append(text)
 
             sys.stdout.write('\rStatus: %s' %(cnt))

@@ -3,9 +3,8 @@ from os.path import isfile, join
 from sklearn.feature_extraction.text import TfidfVectorizer
 #from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 from sklearn import svm, linear_model
-
-from nltk.corpus import stopwords
-from nltk.stem.snowball import SnowballStemmer
+#from sklearn.ensemble import AdaBoostClassifier
+#from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 import sys
 import re
 
@@ -15,12 +14,13 @@ class Predict:
         """ initialize the path of all the folder and files to be used """
 
         print '-'*60
-        self.train_folder = '../data/preprocess/train_clean/' # folder
-        self.test_folder = '../data/preprocess/test_clean/' # folder
+        #self.train_folder = '../data/preprocess_nonstopword_nonstemming/train_clean/' # folder
+        #self.test_folder = '../data/preprocess_nonstopword_nonstemming/test_clean/' # folder
+        self.train_folder = '../data/preprocess_6/train_clean/' # folder
+        self.test_folder = '../data/preprocess_6/test_clean/' # folder
         self.label_file = '../data/train_labels.csv' # path
         #pred_file = './submission_NB.csv' # predicitons
-        self.pred_file = './submission_SGD.csv'
-        self.mood_file = '../data/mods_mapping.txt'
+        self.pred_file = './submission_pre_6_t0.6.csv'
 
 
         self.train_ans = []
@@ -88,7 +88,7 @@ class Predict:
         test_text = self.get_testing_data()
 
         print 'Initilizing tf vectorizer ...'
-        vectorizer = TfidfVectorizer(lowercase = True, smooth_idf=True, stop_words='english')
+        vectorizer = TfidfVectorizer(sublinear_tf=True)
         vectorizer.fit( train_text + test_text )
 
         print 'Transforming data to tfidf vector ...'
@@ -106,12 +106,19 @@ class Predict:
         #clf = BernoulliNB(alpha=0.28)
 
         #print 'build Suport Vector Machine classifier ...'''
-		#clf = svm.SVC(kernel='rbf', probability=True, tol=0.1)
+        #clf = svm.SVC(probability=True, tol=0.01, decision_function_shape='ovo')
         #clf = svm.SVC(C=0.5, kernel='linear', probability=True, tol=0.1, max_iter=100, decision_function_shape='ovr')
 
         print 'build Stochastic gradient descent classifier...'''
         #clf = linear_model.SGDClassifier(alpha=0.0002 ,loss="log", n_iter=8)
-        clf = linear_model.SGDClassifier(alpha=0.000007 ,loss="log", n_iter=1200)
+        #clf = linear_model.SGDClassifier(alpha=0.00001 ,loss="log", n_jobs=-1, n_iter=95)
+        clf = linear_model.SGDClassifier(alpha=0.00001 ,loss="log", n_jobs=-1, n_iter=90,power_t=0.6, average=True)
+        
+        #print 'bulid Linear Discriminant Analysis'
+        #clf = LinearDiscriminantAnalysis()
+
+        #print 'AdaBoostClassifier'
+        #clf = AdaBoostClassifier()
 
         return clf
 
