@@ -15,6 +15,7 @@ class PreProcess:
         """ initialize the path of all the folder and files to be used """
 
         print '-'*60
+<<<<<<< HEAD
         self.train_folder = '../data/train/'
         self.test_folder = '../data/test/'
         self.train_clean_folder = '../data/preprocess_11/train_clean/'
@@ -23,6 +24,14 @@ class PreProcess:
         self.mood_file = '../data/moods_mapping.txt'
         #self.emoticons_file = './data/emoticons.txt'
         self.stopwords_file = '../data/terrier_stopwords.txt'
+=======
+        self.train_folder = '../data_eval/new_train/'
+        self.test_folder = '../data_eval/new_test/'
+        self.train_clean_folder = '../data_eval/new_train_clean/'
+        self.test_clean_folder = '../data_eval/new_test_clean/'
+
+        self.mood_file = '../data/moods_mapping.txt'
+>>>>>>> master
 
     def create_dir(self):
         """ create folder if not found """

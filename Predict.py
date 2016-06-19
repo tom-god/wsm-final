@@ -1,10 +1,18 @@
 from os import listdir
 from os.path import isfile, join
 from sklearn.feature_extraction.text import TfidfVectorizer
+<<<<<<< HEAD
 #from sklearn.naive_bayes import BernoulliNB, MultinomialNB
 from sklearn import svm, linear_model
 #from sklearn.ensemble import AdaBoostClassifier
 #from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+=======
+from sklearn.naive_bayes import BernoulliNB, MultinomialNB
+from sklearn import svm, linear_model
+
+from nltk.corpus import stopwords
+from nltk.stem.snowball import SnowballStemmer
+>>>>>>> master
 import sys
 import re
 
@@ -14,6 +22,7 @@ class Predict:
         """ initialize the path of all the folder and files to be used """
 
         print '-'*60
+<<<<<<< HEAD
         #self.train_folder = '../data/preprocess_nonstopword_nonstemming/train_clean/' # folder
         #self.test_folder = '../data/preprocess_nonstopword_nonstemming/test_clean/' # folder
         self.train_folder = '../data/preprocess_6/train_clean/' # folder
@@ -22,6 +31,14 @@ class Predict:
         #pred_file = './submission_NB.csv' # predicitons
         self.pred_file = './submission_pre_6_t0.6.csv'
 
+=======
+        
+        self.train_folder = '../data_eval/new_train_clean/' # folder
+        self.test_folder = '../data_eval/new_test_clean/' # folder
+        self.label_file = '../data_eval/new_train_labels.csv' # path
+
+        self.pred_file = '..data_eval/result/submission.csv'
+>>>>>>> master
 
         self.train_ans = []
         self.test_index = []
@@ -101,14 +118,15 @@ class Predict:
     def get_classifier(self):
         """ build classifier and fit all the data into it"""
 
-        #print 'Building Multinomial Naive Bayes classifier ...'
+        print 'Building Multinomial Naive Bayes classifier ...'
         #clf =  MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
-        #clf = BernoulliNB(alpha=0.28)
+        clf = BernoulliNB(alpha=0.28)
 
         #print 'build Suport Vector Machine classifier ...'''
         #clf = svm.SVC(probability=True, tol=0.01, decision_function_shape='ovo')
         #clf = svm.SVC(C=0.5, kernel='linear', probability=True, tol=0.1, max_iter=100, decision_function_shape='ovr')
 
+<<<<<<< HEAD
         print 'build Stochastic gradient descent classifier...'''
         #clf = linear_model.SGDClassifier(alpha=0.0002 ,loss="log", n_iter=8)
         #clf = linear_model.SGDClassifier(alpha=0.00001 ,loss="log", n_jobs=-1, n_iter=95)
@@ -119,6 +137,10 @@ class Predict:
 
         #print 'AdaBoostClassifier'
         #clf = AdaBoostClassifier()
+=======
+        #print 'build Stochastic gradient descent classifier...'''
+        #clf = linear_model.SGDClassifier(alpha=0.0002 ,loss="log", n_iter=8)
+>>>>>>> master
 
         return clf
 

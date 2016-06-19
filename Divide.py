@@ -9,13 +9,18 @@ class Divide:
     def __init__(self):
         """ initialize the path of all the folders and files to be used """
 
+<<<<<<< HEAD
         self.src = './data/train/'
         self.src_label = './data/train_labels.csv'
+=======
+        self.src = '../data/train/'
+        self.src_label = '../data/train_labels.csv'
+>>>>>>> master
 
-        self.dst1 = './data/new_test/'
-        self.dst2 = './data/new_train/'
-        self.dst3 = './data/new_test_labels.csv'
-        self.dst4 = './data/new_train_labels.csv'
+        self.dst1 = '../data_eval/new_test/'
+        self.dst2 = '../data_eval/new_train/'
+        self.dst3 = '../data_eval/new_test_labels.csv'
+        self.dst4 = '../data_eval/new_train_labels.csv'
 
         """ the number of files to be randomed and put inside the folder 'new_test' """
         self.random = 18000
